@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
+import AppTopBar from "@/components/layout/app-topbar"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,11 @@ export default function RootLayout({
       >
         <SidebarProvider>
           <AppSidebar />
+          <AppTopBar />
           <SidebarTrigger />
-          {children}
+          <div className="mt-16">
+            {children}
+          </div>
         </SidebarProvider>
       </body>
     </html>
