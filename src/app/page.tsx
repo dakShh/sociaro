@@ -1,8 +1,7 @@
-
 export default function Home() {
   return (
     <div className="">
-      Sociaro
+      <h1>Dashboard</h1>
     </div>
   );
 }
