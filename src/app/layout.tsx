@@ -32,12 +32,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SidebarProvider>
-          <AppSidebar />
-          <AppTopBar />
-          <SidebarTrigger />
-          <div className="mt-16">
-            {children}
-          </div>
+          {/* <AppSidebar /> */}
+          {/* <AppTopBar /> */}
+          {/* <SidebarTrigger /> */}
+          {children}
         </SidebarProvider>
       </body>
     </html>
