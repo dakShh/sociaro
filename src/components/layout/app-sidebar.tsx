@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, Calendar, Clock, Home, Inbox, LayoutDashboard, PenSquare, Search, Settings, Zap } from "lucide-react"
+import { BarChart3, Calendar, Clock, Inbox, LayoutDashboard, PenSquare, Settings, Zap } from "lucide-react"
 
 import {
     Sidebar,
@@ -14,10 +14,11 @@ import {
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 // Menu items.
 const items = [
-    { title: 'Dashboard', icon: LayoutDashboard, url: '/' },
+    { title: 'Dashboard', icon: LayoutDashboard, url: '/dashboard' },
     { title: 'Compose', icon: PenSquare, url: '/compose' },
     { title: 'Calendar', icon: Calendar, url: '/calendar' },
     { title: 'Scheduled', icon: Clock, url: '/scheduled' },
@@ -26,7 +27,7 @@ const items = [
     { title: 'Settings', icon: Settings, url: '/settings' },
 ]
 
-export function AppSidebar() {
+export default function AppSidebar() {
     const pathname = usePathname()
 
     return (
@@ -53,10 +54,14 @@ export function AppSidebar() {
                                                 isActive && "bg-primary font-bold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground transition-colors"
                                             )}
                                         >
-                                            <a href={item.url}>
+                                            <Link href={item.url}>
                                                 <item.icon className="w-10 h-10" />
                                                 <span className="">{item.title}</span>
-                                            </a>
+                                            </Link>
+                                            {/* <a href={item.url}>
+                                                <item.icon className="w-10 h-10" />
+                                                <span className="">{item.title}</span>
+                                            </a> */}
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 )

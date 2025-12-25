@@ -9,8 +9,17 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { signOutWithGoogle } from '@/actions/auth/signout';
 
-export default function AppTopBar() {
+
+export default function AppTopBar({ user }: {
+    user: {
+        id: string
+        name?: string | null
+        email?: string | null
+        image?: string | null
+    } | null
+}) {
     return (
         <header className="fixed top-0 left-64 right-0 h-16 bg-white/80 backdrop-blur-lg border-b border-gray-100 z-30">
             <div className="flex items-center justify-between h-full px-6">
@@ -28,7 +37,7 @@ export default function AppTopBar() {
                         <DropdownMenu>
                             <DropdownMenuTrigger className="focus:outline-none">
                                 <Avatar className="w-9 h-9 cursor-pointer hover:ring-2 hover:ring-gray-200 transition-all">
-                                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100" />
+                                    <AvatarImage src={user?.image || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"} />
                                     <AvatarFallback>U</AvatarFallback>
                                 </Avatar>
                             </DropdownMenuTrigger>
@@ -40,7 +49,7 @@ export default function AppTopBar() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     className="cursor-pointer text-red-600 focus:text-red-600"
-                                    onClick={() => { }}
+                                    onClick={() => signOutWithGoogle()}
                                 >
                                     <LogOut className="w-4 h-4 mr-2" />
                                     Logout
