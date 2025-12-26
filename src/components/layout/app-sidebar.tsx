@@ -47,15 +47,16 @@ export default function AppSidebar() {
                             {items.map((item) => {
                                 const isActive = pathname === item.url
                                 return (
-                                    <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuItem className="mx-2 " key={item.title}>
                                         <SidebarMenuButton
                                             asChild
                                             className={cn(
-                                                isActive && "bg-primary font-bold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground transition-colors"
+                                                'py-6 text-base',
+                                                isActive && "bg-primary shadow-lg shadow-black/15 font-bold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground transition-colors"
                                             )}
                                         >
                                             <Link href={item.url}>
-                                                <item.icon className="w-10 h-10" />
+                                                <item.icon />
                                                 <span className="">{item.title}</span>
                                             </Link>
                                             {/* <a href={item.url}>
