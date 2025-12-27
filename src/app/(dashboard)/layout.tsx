@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <AppSidebar />
         <AppTopBar user={session.user} />
         <SidebarTrigger />
-        <div className="mt-[64px] py-5">
+        <div className="mt-[64px] py-5 w-full">
             {children}
         </div>
     </SidebarProvider>
