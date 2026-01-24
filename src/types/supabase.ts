@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       accounts: {
@@ -199,36 +224,49 @@ export type Database = {
       }
       posts: {
         Row: {
+          container_id: string | null
           content: string
           created_at: string
           id: string
+          media_type: string | null
           media_urls: Json | null
+          platform_id: number | null
           status: string
-          title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          container_id?: string | null
           content: string
           created_at?: string
           id?: string
+          media_type?: string | null
           media_urls?: Json | null
+          platform_id?: number | null
           status?: string
-          title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          container_id?: string | null
           content?: string
           created_at?: string
           id?: string
+          media_type?: string | null
           media_urls?: Json | null
+          platform_id?: number | null
           status?: string
-          title?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_platform"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "social_platforms"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "posts_user_id_fkey"
             columns: ["user_id"]
@@ -364,10 +402,16 @@ export type Database = {
         Row: {
           access_token: string
           account_name: string
+          account_type: string | null
           created_at: string
+          followers_count: number | null
+          follows_count: number | null
+          handle: string
           id: string
           platform_id: number
           platform_specific_id: string
+          platform_user_id: string
+          profile_picture_url: string | null
           refresh_token: string | null
           token_expires_at: string | null
           user_id: string
@@ -375,10 +419,16 @@ export type Database = {
         Insert: {
           access_token: string
           account_name: string
+          account_type?: string | null
           created_at?: string
+          followers_count?: number | null
+          follows_count?: number | null
+          handle: string
           id?: string
           platform_id: number
           platform_specific_id: string
+          platform_user_id: string
+          profile_picture_url?: string | null
           refresh_token?: string | null
           token_expires_at?: string | null
           user_id: string
@@ -386,10 +436,16 @@ export type Database = {
         Update: {
           access_token?: string
           account_name?: string
+          account_type?: string | null
           created_at?: string
+          followers_count?: number | null
+          follows_count?: number | null
+          handle?: string
           id?: string
           platform_id?: number
           platform_specific_id?: string
+          platform_user_id?: string
+          profile_picture_url?: string | null
           refresh_token?: string | null
           token_expires_at?: string | null
           user_id?: string
@@ -610,6 +666,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

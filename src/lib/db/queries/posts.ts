@@ -2,11 +2,12 @@ import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function createPost(data: {
     userId: string
-    title?: string
     content: string
     mediaUrls?: string[]
     mediaType?: string
-    status?: string
+    publish_status?: string
+    platformId: number
+    container_id: string
 }) {
     const supabase = getSupabaseAdmin()
 
@@ -14,11 +15,12 @@ export async function createPost(data: {
         .from('posts')
         .insert({
             user_id: data.userId,
-            title: data.title,
             content: data.content,
             media_urls: data.mediaUrls || [],
             media_type: data.mediaType,
-            status: data.status || 'draft',
+            platform_id: data.platformId,
+            status: data.publish_status || 'draft',
+            container_id: data.container_id,
         })
         .select()
         .single()

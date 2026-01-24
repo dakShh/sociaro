@@ -20,9 +20,7 @@ export class MetaApiClient {
         this.accessToken = accessToken
     }
 
-    /**
-     * Exchange authorization code for access token
-     */
+    // Exchange authorization code for access token
     static async exchangeCodeForToken(code: string): Promise<MetaTokenResponse> {
         const formData = new FormData();
         formData.append('client_id', process.env.META_CLIENT_ID!);
@@ -43,9 +41,7 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Get long-lived access token (60 days)
-     */
+    //  Get long-lived access token (60 days)
     static async getLongLivedToken(shortToken: string): Promise<MetaTokenResponse> {
         const params = new URLSearchParams({
             grant_type: 'ig_exchange_token',
@@ -64,9 +60,7 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Get user's Facebook pages
-     */
+    // Get user's Facebook pages
     async getPages() {
         const response = await fetch(
             `${this.baseUrl}/me/accounts?access_token=${this.accessToken}`
@@ -80,9 +74,7 @@ export class MetaApiClient {
         return data.data
     }
 
-    /**
-     * Get Instagram Business Account connected to a Facebook Page
-     */
+    // Get Instagram Business Account connected to a Facebook Page
     async getInstagramAccount(pageId: string): Promise<InstagramAccount | null> {
         const response = await fetch(
             `${this.baseUrl}/${pageId}?fields=instagram_business_account{id,username,name,profile_picture_url,account_type}&access_token=${this.accessToken}`
@@ -96,18 +88,20 @@ export class MetaApiClient {
         return data.instagram_business_account || null
     }
 
-    /**
-     * Create Instagram image post container
-     */
+    // Create Instagram image post container
     async createImagePostContainer(
         igAccountId: string,
         imageUrl: string,
-        caption?: string
+        caption?: string,
+        altText?: string,
+        isCarouselItem: boolean = false
     ) {
         const params = new URLSearchParams({
             image_url: imageUrl,
             caption: caption || '',
+            alt_text: altText || '',
             access_token: this.accessToken,
+            is_carousel_item: isCarouselItem ? 'TRUE' : 'FALSE'
         })
 
         const response = await fetch(
@@ -123,19 +117,22 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Create Instagram video/reel container
-     */
+    // Create Instagram video/reel container
     async createVideoPostContainer(
         igAccountId: string,
         videoUrl: string,
         caption?: string,
-        isReel: boolean = false
+        altText?: string,
+        isReel: boolean = false,
+        isStory: boolean = false,
+        isCarouselItem: boolean = false,
     ) {
         const params = new URLSearchParams({
-            media_type: isReel ? 'REELS' : 'VIDEO',
+            media_type: isReel ? 'REELS' : isStory ? 'STORIES' : 'REELS',
             video_url: videoUrl,
             caption: caption || '',
+            alt_text: altText || '',
+            is_carousel_item: isCarouselItem ? 'TRUE' : 'FALSE',
             access_token: this.accessToken,
         })
 
@@ -152,13 +149,11 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Create carousel post container
-     */
+    // Create carousel post container
     async createCarouselContainer(
         igAccountId: string,
         childrenIds: string[],
-        caption?: string
+        caption?: string,
     ) {
         const params = new URLSearchParams({
             media_type: 'CAROUSEL',
@@ -180,9 +175,7 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Publish media container
-     */
+    // Publish media container
     async publishMedia(igAccountId: string, creationId: string) {
         const params = new URLSearchParams({
             creation_id: creationId,
@@ -190,7 +183,7 @@ export class MetaApiClient {
         })
 
         const response = await fetch(
-            `${this.baseUrl}/${igAccountId}/media_publish?${params}`,
+            `${this.baseUrl}/${igAccountId}/media_publish/?${params}`,
             { method: 'POST' }
         )
 
@@ -202,12 +195,15 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Get media status (to check if ready to publish)
-     */
+    // Get media status (to check if ready to publish)
     async getMediaStatus(containerId: string) {
+        const params = new URLSearchParams({
+            fields: 'status_code',
+            access_token: this.accessToken,
+        })
+
         const response = await fetch(
-            `${this.baseUrl}/${containerId}?fields=status_code&access_token=${this.accessToken}`
+            `${this.baseUrl}/${containerId}?${params}`
         )
 
         if (!response.ok) {
@@ -217,9 +213,7 @@ export class MetaApiClient {
         return response.json()
     }
 
-    /**
-     * Create Instagram Story
-     */
+    // Create Instagram Story
     async createStory(
         igAccountId: string,
         mediaUrl: string,
@@ -247,6 +241,7 @@ export class MetaApiClient {
         return this.publishMedia(igAccountId, data.id)
     }
 
+    // Get Instagram account info
     async getInstagramAccountInfo() {
         const params = new URLSearchParams({
             fields: 'id,user_id,username,name,profile_picture_url,account_type,followers_count,media_count,follows_count',
