@@ -85,7 +85,7 @@ export async function getUserSocialAccounts(userId: string, platformName?: strin
 
     const { data, error } = await query.order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error || !data) throw error
     return data
 }
 
@@ -107,6 +107,29 @@ export async function getSocialAccountById(accountId: string) {
         .single()
 
     if (error) throw error
+    return data
+}
+
+/**
+ * Get user's Instagram account credentials for publishing
+ * @param userId - The user's ID
+ * @param platformId - The platform ID (3 for Instagram)
+ * @returns Instagram account with access_token and platform_user_id
+ */
+export async function getUserInstagramAccount(userId: string, platformId: number = 3) {
+    const supabase = getSupabaseAdmin()
+
+    const { data, error } = await supabase
+        .from('user_social_accounts')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('platform_id', platformId)
+        .single()
+
+    if (error || !data) {
+        throw new Error('No active Instagram account found for user')
+    }
+
     return data
 }
 

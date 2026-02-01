@@ -187,41 +187,6 @@ export type Database = {
           },
         ]
       }
-      post_analytics: {
-        Row: {
-          created_at: string
-          id: string
-          metric_name: string
-          metric_value: number
-          retrieved_at: string
-          scheduled_post_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          metric_name: string
-          metric_value: number
-          retrieved_at: string
-          scheduled_post_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          metric_name?: string
-          metric_value?: number
-          retrieved_at?: string
-          scheduled_post_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_analytics_scheduled_post_id_fkey"
-            columns: ["scheduled_post_id"]
-            isOneToOne: true
-            referencedRelation: "scheduled_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       posts: {
         Row: {
           container_id: string | null
@@ -296,49 +261,64 @@ export type Database = {
       }
       scheduled_posts: {
         Row: {
+          caption: string
           created_at: string
           error_message: string | null
-          external_post_id: string | null
           id: string
-          post_id: string
-          publish_status: string
-          published_time: string | null
-          scheduled_time: string
-          social_account_id: string
+          is_carousel: boolean | null
+          media_urls: Json | null
+          post_type: string
+          published_at: string | null
+          scheduled_at: string
+          social_media_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          user_social_account_id: string
         }
         Insert: {
+          caption: string
           created_at?: string
           error_message?: string | null
-          external_post_id?: string | null
           id?: string
-          post_id: string
-          publish_status?: string
-          published_time?: string | null
-          scheduled_time: string
-          social_account_id: string
+          is_carousel?: boolean | null
+          media_urls?: Json | null
+          post_type: string
+          published_at?: string | null
+          scheduled_at: string
+          social_media_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          user_social_account_id: string
         }
         Update: {
+          caption?: string
           created_at?: string
           error_message?: string | null
-          external_post_id?: string | null
           id?: string
-          post_id?: string
-          publish_status?: string
-          published_time?: string | null
-          scheduled_time?: string
-          social_account_id?: string
+          is_carousel?: boolean | null
+          media_urls?: Json | null
+          post_type?: string
+          published_at?: string | null
+          scheduled_at?: string
+          social_media_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          user_social_account_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "scheduled_posts_post_id_fkey"
-            columns: ["post_id"]
+            foreignKeyName: "scheduled_posts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "posts"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "scheduled_posts_social_account_id_fkey"
-            columns: ["social_account_id"]
+            foreignKeyName: "scheduled_posts_user_social_account_id_fkey"
+            columns: ["user_social_account_id"]
             isOneToOne: false
             referencedRelation: "user_social_accounts"
             referencedColumns: ["id"]

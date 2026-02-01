@@ -22,6 +22,10 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import Image from 'next/image';
+import { CloudflareUploadResponse, uploadMediaToCloudflare } from '@/lib/services/cloudflare/upload';
+import { createInstagramMediaContainer } from '@/lib/services/instagram/container';
+import { schedulePost } from '@/lib/services/scheduling';
+
 
 // const charLimits = {
 //     twitter: 280,
@@ -40,7 +44,7 @@ export default function Compose() {
     const [isUploading, setIsUploading] = useState(false);
     const [editingDraft, setEditingDraft] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [postType, setPostType] = useState('single');
+    const [postType, setPostType] = useState<'single' | 'carousel' | 'reel' | 'story'>('single');
 
     const charLimit = 2200;
     const charCount = caption.length;
@@ -88,44 +92,31 @@ export default function Compose() {
     const handleSubmit = async () => {
         setIsLoading(true);
 
+        // social_platform = instagram, tiktok, youtube
+        // 
         try {
 
-            // uploading the file to cloudflare
-            const formData = new FormData();
-            // Append each file individually
-            mediaFilesPreview.forEach((fileObj) => {
-                if (fileObj?.file) {
-                    formData.append('files', fileObj.file);
-                }
-            });
-
-            const response = await fetch(`/api/cloudflare/upload`, {
-                method: 'POST',
-                body: formData
-            })
-
-            console.log("[Post] Uploading to cloudflare")
-            const cloudflareResponse = await response.json();
-            console.log("[Post] Cloudflare response: ", cloudflareResponse)
-            if (cloudflareResponse.failed.length > 1 || cloudflareResponse.data.length === 0) {
-                throw new Error("Failed to upload a media")
-            }
-
-
-
+            const { mediaType, mediaUrls } = await uploadMediaToCloudflare(mediaFilesPreview);
             console.log("[Post] Uploaded to cloudflare...")
 
-            const mediaType = mediaFilesPreview.map((item) => item.type);
-            const mediaUrls = cloudflareResponse?.data || [];
+            console.log("[Post] Creating a instagram image container")
+            const containerId = await createInstagramMediaContainer({ mediaType, mediaUrls, caption, postType })
+            await schedulePost({
+                caption,
+                scheduled_at: new Date().toString(),
+                isCarousel: postType === 'carousel',
+                postType,
+                containerId,
+                mediaUrls
+            });
 
-            console.log("[Post] Creating a instagram image container and publishing....")
-            const mediaContainer = await fetch('/api/platforms/instagram/publish-content', {
-                method: 'POST',
-                body: JSON.stringify({ mediaType, mediaUrls, caption, postType })
-            })
+            // const mediaContainer = await fetch('/api/platforms/instagram/publish-content', {
+            //     method: 'POST',
+            //     body: JSON.stringify({ mediaType, mediaUrls, caption, postType })
+            // })
 
-            const mediaContainerResponse = await mediaContainer.json();
-            console.log("[Post] Published to instagram...", mediaContainerResponse)
+            // const mediaContainerResponse = await mediaContainer.json();
+            // console.log("[Post] Published to instagram...", mediaContainerResponse)
 
             resetForm();
         } catch (error) {
@@ -134,6 +125,8 @@ export default function Compose() {
             setIsLoading(false);
         }
     };
+
+
 
     return (
         <div className="">
@@ -148,14 +141,14 @@ export default function Compose() {
                 {/* Composer */}
                 <div className="col-span-2 gap-y-2 flex flex-col">
                     <div className=' '>
-                        <Select value={postType} onValueChange={setPostType}>
+                        <Select value={postType} onValueChange={(value) => setPostType(value as 'single' | 'carousel' | 'reel' | 'story')}>
                             <SelectTrigger className="w-full bg-card">
                                 <SelectValue placeholder="Select Post Type" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectLabel>Type of Post</SelectLabel>
-                                    <SelectItem value="single" >Single <span className="text-xs text-gray-500">Image / Video</span></SelectItem>
+                                    <SelectItem value="single" >Single <span className="text-xs text-gray-500">Image</span></SelectItem>
                                     <SelectItem value="carousel">Carousel <span className="text-xs text-gray-500">Multiple Images / Videos</span></SelectItem>
                                     <SelectItem value="reel">Reel <span className="text-xs text-gray-500">Video</span></SelectItem>
                                     <SelectItem value="story">Story <span className="text-xs text-gray-500">Image / Video</span></SelectItem>
@@ -219,7 +212,7 @@ export default function Compose() {
                                                     muted
                                                 />
                                             ) : (
-                                                <Image src={file.previewUrl} alt="" className="w-full h-full object-cover" />
+                                                <Image src={file.previewUrl} width={300} height={300} alt="" className="w-full h-full object-cover" />
                                             )}
                                             <button
                                                 onClick={() => removeFile(file.id, file.previewUrl)}
@@ -240,7 +233,7 @@ export default function Compose() {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={handleFileUpload}
-                                    accept="image/*,video/*"
+                                    accept={postType === 'reel' ? 'video/*' : postType === 'single' ? 'image/*' : 'image/*,video/*'}
                                     multiple={postType === 'carousel'} // multiple files for carousel
                                     className="hidden"
                                 />

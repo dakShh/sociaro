@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
+import { TablesUpdate } from '@/types/supabase'
 
 export async function createPost(data: {
     userId: string
@@ -29,20 +30,33 @@ export async function createPost(data: {
     return post
 }
 
-export async function createScheduledPost(data: {
-    postId: string
-    socialAccountId: string
-    scheduledTime: Date
+export async function createScheduledPost({ user_id, user_social_id, status, caption, scheduled_at, is_carousel, container_id, post_type, mediaUrls }: {
+    user_id: string,
+    user_social_id: string,
+    status: 'draft' | 'scheduled' | 'published' | 'failed' | 'cancelled'
+    caption: string,
+    scheduled_at: string,
+    is_carousel: boolean,
+    container_id: string,
+    post_type: string,
+    mediaUrls: string[]
 }) {
     const supabase = getSupabaseAdmin()
 
     const { data: scheduledPost, error } = await supabase
         .from('scheduled_posts')
         .insert({
-            post_id: data.postId,
-            social_account_id: data.socialAccountId,
-            scheduled_time: data.scheduledTime.toISOString(),
-            publish_status: 'pending',
+            user_id,
+            user_social_account_id: user_social_id,
+            status,
+            caption,
+            scheduled_at,
+            is_carousel,
+            container_id,
+            created_at: new Date().toString(),
+            updated_at: new Date().toString(),
+            post_type,
+            media_urls: mediaUrls
         })
         .select()
         .single()
@@ -53,26 +67,18 @@ export async function createScheduledPost(data: {
 
 export async function updateScheduledPost(
     scheduledPostId: string,
-    updates: {
-        publishStatus?: string
-        publishedTime?: Date
-        externalPostId?: string
-        errorMessage?: string
-    }
+    updates: TablesUpdate<'scheduled_posts'>
 ) {
     const supabase = getSupabaseAdmin()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: any = {}
-
-    if (updates.publishStatus) updateData.publish_status = updates.publishStatus
-    if (updates.publishedTime) updateData.published_time = updates.publishedTime.toISOString()
-    if (updates.externalPostId) updateData.external_post_id = updates.externalPostId
-    if (updates.errorMessage) updateData.error_message = updates.errorMessage
+    // if (updates.publishStatus) updateData.publish_status = updates.publishStatus
+    // if (updates.publishedTime) updateData.published_time = updates.publishedTime.toISOString()
+    // if (updates.externalPostId) updateData.external_post_id = updates.externalPostId
+    // if (updates.errorMessage) updateData.error_message = updates.errorMessage
 
     const { data, error } = await supabase
         .from('scheduled_posts')
-        .update(updateData)
+        .update(updates)
         .eq('id', scheduledPostId)
         .select()
         .single()
